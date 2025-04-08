@@ -1,6 +1,23 @@
 #!/bin/python3
-
+#processAppsTeam.py - chopps up a vuln export based on host_id.custom_tags
 import pandas as pd
+import sys, pyperclip
 
-pd.read_excel("/mnt/c/Users/Jules.Shearer/Downloads/vuln_mapping_export_1744129805875.xlsx")
+if len(sys.argv) > 1:
+    file =''.join(sys.argv[1:])
+else: 
+    file = "/mnt/c/Users/Jules.Shearer/Downloads/vuln_mapping_export_1744129805875.xlsx"
+    #file = pyperclip.paste() 
+
+data = pd.read_excel(file)
+data=data[data['host_id.custom_tags'].notna()]
+data=data[data['host_id.custom_tags'].str.contains('Apps Team')]
+
+Apps = ['Milestone','CCure', 'LandNAV', 'Papercut', 'v-as400-data', 'OMS', 'Kronos', 'New World' ]
+
+with pd.ExcelWriter('/mnt/c/Users/Jules.Shearer/Downloads/vulnerability_by_application.xlsx', engine='xlsxwriter') as writer:
+    for app in Apps:
+        vulns = data[data['host_id.custom_tags'].str.contains(app)]
+        vulns.to_excel(writer, sheet_name=app, index=False)
+
 print('EOF')
