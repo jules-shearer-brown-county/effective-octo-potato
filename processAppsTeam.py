@@ -1,5 +1,6 @@
 #!/bin/python3
 #processAppsTeam.py - chopps up a vuln export based on host_id.custom_tags
+
 import pandas as pd
 import sys, pyperclip
 
@@ -12,12 +13,14 @@ else:
 data = pd.read_excel(file)
 data=data[data['host_id.custom_tags'].notna()]
 data=data[data['host_id.custom_tags'].str.contains('Apps Team')]
+#data=data[data['vuln_id.severity']>=5]
 
 Apps = ['Milestone','CCure', 'LandNAV', 'Papercut', 'v-as400-data', 'OMS', 'Kronos', 'New World' ]
 
 with pd.ExcelWriter('/mnt/c/Users/Jules.Shearer/Downloads/vulnerability_by_application.xlsx', engine='xlsxwriter') as writer:
     for app in Apps:
         vulns = data[data['host_id.custom_tags'].str.contains(app)]
+        print("found %d in %s" % (len(vulns.index), app))
         vulns.to_excel(writer, sheet_name=app, index=False)
 
 print('EOF')
