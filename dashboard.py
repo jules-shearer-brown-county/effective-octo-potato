@@ -8,26 +8,20 @@ df=read_data.read_data('/mnt/c/Users/jules.shearer/Downloads/brown_county_gov_vu
 app = Dash()
 
 # Requires Dash 2.17.0 or later
-app.layout = [
+app.layout = html.Div([
     dash_table.DataTable(
         df.to_dict('records'),
-        style_cell={
-            'overflow':'hidden',
-            'textOverflow': 'ellipsis',
-            'minWidth': '180px', 'width': '180px','maxWidth': '180px',
-        },
+        [{"name": i, "id": i} for i in df.columns],
+        page_action='native',
+        sort_action='native',
+        filter_action='native',
+        sort_mode='multi',
+        #selected_columns=[],
+        #selected_rows=[],
         page_size=20,
-        id='table',
-    )
-]
+    ),
+    html.Div(id='datatable-interactivity-containter')
+])
 
-#@callback(
-#    Output(component_id='table', component_property='figure'),
-#    Input(component_id='hostname', component_property='value'),
-#)
-#
-#def update_graph(col_chosen):
-#    return fig
-#
 if __name__ == '__main__':
     app.run(debug=True)
