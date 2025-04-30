@@ -1,7 +1,6 @@
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import pandas as pd
 import read_data
-import waterfall
 
 df=read_data.read_data('/mnt/c/Users/jules.shearer/Downloads/brown_county_gov_vuln_rememdiation_365.xlsx')
 

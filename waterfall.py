@@ -16,10 +16,9 @@ def waterfall(deltas):
         title = "Ugly Graph",
         showlegend = True
     )
-    #fig.show()
+    fig.show()
 
-def preprocess():
-    data = read_data.read_data(fileLocation)
+def preprocess(data):
     make_negative=lambda x: 0-x
     deltas = pd.concat([data['first_seen'].value_counts(), data['closed_dt'].value_counts().apply(make_negative), data['ack_dt'].value_counts().apply(make_negative)])
     deltas = deltas.reset_index()
@@ -36,5 +35,6 @@ if __name__ ==  '__main__':
     else:
         #Get location from the clipboard
         fileLocation = pyperclip.paste()
-    deltas = preprocess()
+    data = read_data.read_data(fileLocation)
+    deltas = preprocess(data)
     waterfall(deltas)
