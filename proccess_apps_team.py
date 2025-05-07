@@ -5,19 +5,7 @@ import pandas as pd
 import sys, pyperclip, os, subprocess
 import plotly.express as px
 
-def open_in_browser(html_path):
-    current_dir = os.getcwd()
-    absolute_wsl_path = os.path.join(current_dir, html_path)
-    windows_path = subprocess.check_output(["wslpath", "-w", absolute_wsl_path]).decode().strip()
-    subprocess.run(["/mnt/c/Program Files/Mozilla Firefox/firefox.exe", windows_path])
-
-def view(fig):
-    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
-    os.makedirs(dir_name,exist_ok=True)
-    fig_name = 'plot.html'
-    html_path = os.path.join(dir_name, fig_name)
-    fig.write_html(html_path)
-    open_in_browser(html_path)
+import utility
 
 def severity_pie_chart(grouped_by_severity):
     grouped_by_severity.rename(
@@ -28,23 +16,20 @@ def severity_pie_chart(grouped_by_severity):
             },
             inplace=True),
     severity_pie = px.pie(
-        app,
-        names=app.index,
+        grouped_by_severity,
+        names=grouped_by_severity.index,
         values='hvm_id',
-        title="Number of vulnerabilties severity as % of whole"
+        title="Number of vulnerabilties severity as % of whole",
+        color=grouped_by_severity.index,
+        color_discrete_map={
+            'Medium':'blue',
+            'High' : 'yellow',
+            'Critical':'red'}
     )
-    view(severity_pie)
+    severity_pie.update_traces(textposition='inside', textinfo='percent+label' )
+    utility.view(severity_pie)
 
-def proccess_apps_team(input_file):
-    data = pd.read_excel(input_file)
-
-    apps = ['Milestone','CCure', 'LandNAV', 'Papercut', 'v-as400-data', 'OMS', 'Kronos', 'Pinnacle', 'New World', 'Laserfiche', 'AWS', 'County Law']
-
-    data['Application'] = pd.Series(dtype=str)
-    for app_name in apps:
-        data = data[data['host_id.custom_tags'].notna()]
-        data.loc[data['host_id.custom_tags'].str.contains(app_name), 'Application'] = app_name
-
+def print_results(data):
     grouped_by_application = data[['hvm_id', 'Application']].groupby('Application')
     print("Applications and their count of vulnerabilties")
     print(grouped_by_application.count())
@@ -61,6 +46,19 @@ def proccess_apps_team(input_file):
     grouped_by_severity = data[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
     print(grouped_by_severity.count())
 
+def proccess_apps_team(input_file):
+    data = pd.read_excel(input_file)
+
+    apps = ['Milestone','CCure', 'LandNAV', 'Papercut', 'v-as400-data', 'OMS', 'Kronos', 'Pinnacle', 'New World', 'Laserfiche', 'AWS', 'County Law']
+
+    data['Application'] = pd.Series(dtype=str)
+    for app_name in apps:
+        data = data[data['host_id.custom_tags'].notna()]
+        data.loc[data['host_id.custom_tags'].str.contains(app_name), 'Application'] = app_name
+
+    grouped_by_severity = data[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
+    severity_pie_chart(grouped_by_severity.count())
+
     return data
 
 if __name__ ==  '__main__':
@@ -71,5 +69,6 @@ if __name__ ==  '__main__':
         #input_file = pyperclip.paste()
 
     data = proccess_apps_team(input_file)
+    print_results(data)
 
 print('EOF')
