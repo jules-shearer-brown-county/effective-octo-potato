@@ -1,0 +1,3 @@
+TODO:
+    Make the list of Applications come from a sharepoint list
+    Update the list of vulnerabilites for the application

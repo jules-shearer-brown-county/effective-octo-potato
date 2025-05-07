@@ -19,6 +19,22 @@ def view(fig):
     fig.write_html(html_path)
     open_in_browser(html_path)
 
+def severity_pie_chart(grouped_by_severity):
+    grouped_by_severity.rename(
+            index={
+                3:'Medium',
+                4:'High',
+                5:'Critical'
+            },
+            inplace=True),
+    severity_pie = px.pie(
+        app,
+        names=app.index,
+        values='hvm_id',
+        title="Number of vulnerabilties severity as % of whole"
+    )
+    view(severity_pie)
+
 def proccess_apps_team(input_file):
     data = pd.read_excel(input_file)
 
@@ -28,16 +44,7 @@ def proccess_apps_team(input_file):
     for app_name in apps:
         data = data[data['host_id.custom_tags'].notna()]
         data.loc[data['host_id.custom_tags'].str.contains(app_name), 'Application'] = app_name
-    return data
 
-if __name__ ==  '__main__':
-    if len(sys.argv) > 1:
-        input_file =''.join(sys.argv[1:])
-    else:
-        input_file = "/mnt/c/Users/Jules.Shearer/Downloads/vuln_mapping_export_1745957589285.xlsx"
-        #input_file = pyperclip.paste()
-
-    data = proccess_apps_team(input_file)
     grouped_by_application = data[['hvm_id', 'Application']].groupby('Application')
     print("Applications and their count of vulnerabilties")
     print(grouped_by_application.count())
@@ -53,21 +60,16 @@ if __name__ ==  '__main__':
     print("Severity and their count of vulnerabilties")
     grouped_by_severity = data[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
     print(grouped_by_severity.count())
-    app = grouped_by_severity.count()
-    app.rename(
-            index={
-                3:'Medium',
-                4:'High',
-                5:'Critical'
-            },
-            inplace=True),
 
-    severity_pie = px.pie(
-        app,
-        names=app.index,
-        values='hvm_id',
-        title="Number of vulnerabilties severity as % of whole"
-    )
-    view(severity_pie)
+    return data
+
+if __name__ ==  '__main__':
+    if len(sys.argv) > 1:
+        input_file =''.join(sys.argv[1:])
+    else:
+        input_file = "/mnt/c/Users/Jules.Shearer/Downloads/vuln_mapping_export_1745957589285.xlsx"
+        #input_file = pyperclip.paste()
+
+    data = proccess_apps_team(input_file)
 
 print('EOF')

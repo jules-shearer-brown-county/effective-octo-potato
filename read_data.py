@@ -12,7 +12,7 @@ def read_data(fileLocation):
     data['ack_dt'] = pd.to_datetime(data['ack_dt'], unit='s').dt.date
     data['closed_dt'] = pd.to_datetime(data['closed_dt'], unit='s').dt.date
     data['vuln_id.link'] = 'https://app.uncommonx.com/network-disc/vuln/' + data['vuln_id.vuln_id'].astype(str)
-    return data[['vuln_id.severity', 'vuln_id.name', 'host_id.hostname', 'host_id.ip_address', 'vuln_id.link', 'details.results', 'hvm_id', 'first_seen', 'last_seen', 'vuln_id.exploit']]
+    return data.drop(columns=[col for col in data if data[data[col].notna()].empty])
 
 if __name__ ==  '__main__':
     if len(sys.argv) > 1:

@@ -2,7 +2,7 @@ from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import pandas as pd
 import read_data
 
-df=read_data.read_data('/mnt/c/Users/jules.shearer/Downloads/vuln_mapping_export_1746558696587.xlsx')
+df=read_data.read_data('/mnt/c/Users/jules.shearer/Downloads/brown_county_gov_vuln_rememdiation_365.xlsx')
 
 app = Dash()
 
@@ -14,6 +14,7 @@ app.layout = html.Div([
         page_action='native',
         sort_action='native',
         filter_action='native',
+        sort_mode='multi',
         style_cell={
             'overflow':'hidden',
             'TextOverflow':'ellipsis',
