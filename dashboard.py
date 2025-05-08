@@ -1,8 +1,10 @@
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import pandas as pd
-import read_data
+import proccess_apps_team
+import utility
 
-df=read_data.read_data('/mnt/c/Users/jules.shearer/Downloads/vuln_mapping_export_1746558696587.xlsx')
+latest_scan = utility.get_latest_scan_from_downloads()
+df=proccess_apps_team.proccess_apps_team(latest_scan)
 
 app = Dash()
 
@@ -25,4 +27,5 @@ app.layout = html.Div([
 ])
 
 if __name__ == '__main__':
+    utility.open_dashboard_in_firefox()
     app.run(debug=True)
