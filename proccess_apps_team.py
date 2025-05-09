@@ -5,7 +5,7 @@ import pandas as pd
 import sys, pyperclip, os, subprocess
 import plotly.express as px
 
-import utility
+import utility, read_data
 
 def severity_pie_chart(grouped_by_severity):
     grouped_by_severity.rename(
@@ -46,29 +46,25 @@ def print_results(data):
     grouped_by_severity = data[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
     print(grouped_by_severity.count())
 
-def proccess_apps_team(input_file):
-    data = pd.read_excel(input_file)
+def proccess_apps_team(input_file=utility.get_latest_scan_from_downloads(), plot=False):
+    data = read_data.read_data(input_file)
 
-    apps = ['Milestone','CCure', 'LandNAV', 'Papercut', 'v-as400-data', 'OMS', 'Kronos', 'Pinnacle', 'New World', 'Laserfiche', 'AWS', 'County Law']
+    apps = ['Human Services', 'Milestone','CCure', 'LandNAV', 'Papercut', 'OMS', 'Kronos', 'Pinnacle', 'New World', 'Laserfiche', 'AWS', 'County Law', 'Public Works', 'Misc']
 
     data['Application'] = pd.Series(dtype=str)
     for app_name in apps:
         data = data[data['host_id.custom_tags'].notna()]
         data.loc[data['host_id.custom_tags'].str.contains(app_name), 'Application'] = app_name
 
-    grouped_by_severity = data[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
-    severity_pie_chart(grouped_by_severity.count())
+    if(plot):
+        grouped_by_severity = data[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
+        severity_pie_chart(grouped_by_severity.count())
 
     return data
 
 if __name__ ==  '__main__':
-    if len(sys.argv) > 1:
-        input_file =''.join(sys.argv[1:])
-    else:
-        input_file = "/mnt/c/Users/Jules.Shearer/Downloads/vuln_mapping_export_1745957589285.xlsx"
-        #input_file = pyperclip.paste()
 
-    data = proccess_apps_team(input_file)
+    data = proccess_apps_team()
     print_results(data)
 
 print('EOF')
