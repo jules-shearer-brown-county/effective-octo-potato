@@ -21,8 +21,8 @@ def severity_pie_chart(grouped_by_severity):
         title="Number of vulnerabilties severity as % of whole",
         color=grouped_by_severity.index,
         color_discrete_map={
-            'Medium':'blue',
-            'High' : 'yellow',
+            'Medium':'yellow',
+            'High' : 'orange',
             'Critical':'red'}
     )
     severity_pie.update_traces(textposition='inside', textinfo='percent+label' )
@@ -32,12 +32,14 @@ latest_scan = utility.get_latest_scan_from_downloads()
 
 df = proccess_apps_team.proccess_apps_team(latest_scan)
 
+grouped_by_severity = df[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
+
 app = Dash()
 
 # Requires Dash 2.17.0 or later
 app.layout = html.Div([
     html.H4('Vulnerabilites'),
-    dcc.Graph(id='graph'),
+    dcc.Graph(figure=severity_pie_chart(grouped_by_severity.count())),
     dash_table.DataTable(
         df.to_dict('records'),
         columns= [{"name": i, "id": i, 'presentation': 'markdown'} if ((i=='host_id.link') | (i=='vuln_id.link')) else ({"name": i, "id": i}) for i in df.columns],
@@ -53,7 +55,5 @@ app.layout = html.Div([
 ])
 
 if __name__ == '__main__':
-    #grouped_by_severity = df[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
-    #severity_pie_chart(grouped_by_severity.count())
-    #utility.open_dashboard_in_firefox()
+    utility.open_dashboard_in_firefox()
     app.run(debug=True)
