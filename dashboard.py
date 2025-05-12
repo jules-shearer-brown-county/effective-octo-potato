@@ -51,9 +51,12 @@ app.layout = html.Div([
         },
         page_size=25,
     ),
-    html.Div(id='datatable-interactivity-containter')
+    html.Div(id='datatable-interactivity-containter'),
+    dcc.Dropdown(id='Application',
+                 options=apps,
+                 value='CCure'),
 ])
 
 if __name__ == '__main__':
-    utility.open_dashboard_in_firefox()
+    #utility.open_dashboard_in_firefox()
     app.run(debug=True)
