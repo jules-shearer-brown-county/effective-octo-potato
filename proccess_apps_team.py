@@ -2,32 +2,11 @@
 #proccess_apps_team.py - chops up a vuln export based on host_id.custom_tags
 
 import pandas as pd
-import sys, pyperclip, os, subprocess
+import sys, pyperclip, os, subprocess, datetime
 import plotly.express as px
 
 import utility, read_data
 
-def severity_pie_chart(grouped_by_severity):
-    grouped_by_severity.rename(
-            index={
-                3:'Medium',
-                4:'High',
-                5:'Critical'
-            },
-            inplace=True),
-    severity_pie = px.pie(
-        grouped_by_severity,
-        names=grouped_by_severity.index,
-        values='hvm_id',
-        title="Number of vulnerabilties severity as % of whole",
-        color=grouped_by_severity.index,
-        color_discrete_map={
-            'Medium':'blue',
-            'High' : 'yellow',
-            'Critical':'red'}
-    )
-    severity_pie.update_traces(textposition='inside', textinfo='percent+label' )
-    utility.view(severity_pie)
 
 def print_results(data):
     grouped_by_application = data[['hvm_id', 'Application']].groupby('Application')
@@ -46,7 +25,11 @@ def print_results(data):
     grouped_by_severity = data[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
     print(grouped_by_severity.count())
 
-def proccess_apps_team(input_file=utility.get_latest_scan_from_downloads(), plot=False):
+    for i in range(datetime.datetime.now().month):
+        firstseen_by_month = data[(data['first_seen'] > datetime.date(2024,i+1,1)) & (data['first_seen'] < datetime.date(2025,i+2,1))]
+        print("%d for the %d month of the year" % (len(firstseen_by_month.index), i))
+
+def proccess_apps_team(input_file=utility.get_latest_scan_from_downloads()):
     data = read_data.read_data(input_file)
 
     apps = ['Human Services', 'Milestone','CCure', 'LandNAV', 'Papercut', 'OMS', 'Kronos', 'Pinnacle', 'New World', 'Laserfiche', 'AWS', 'County Law', 'Public Works', 'Misc']
@@ -55,10 +38,6 @@ def proccess_apps_team(input_file=utility.get_latest_scan_from_downloads(), plot
     for app_name in apps:
         data = data[data['host_id.custom_tags'].notna()]
         data.loc[data['host_id.custom_tags'].str.contains(app_name), 'Application'] = app_name
-
-    if(plot):
-        grouped_by_severity = data[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
-        severity_pie_chart(grouped_by_severity.count())
 
     return data
 
