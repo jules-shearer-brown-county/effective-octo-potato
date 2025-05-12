@@ -26,3 +26,8 @@ def get_latest_scan_from_downloads():
     dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
     files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
     return max(files, key=os.path.getctime)
+
+def get_remediations():
+    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
+    files = glob.glob(dir_name + 'Remediated (2).xlsx')
+    return max(files, key=os.path.getctime)
