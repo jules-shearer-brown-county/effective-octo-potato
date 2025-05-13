@@ -5,7 +5,7 @@ import pandas as pd
 import sys, pyperclip, os, subprocess, datetime
 import plotly.express as px
 
-import utility, read_data
+import utility
 
 
 def print_results(data):
@@ -30,7 +30,7 @@ def print_results(data):
         print("%d for the %d month of the year" % (len(firstseen_by_month.index), i))
 
 def proccess_apps_team(input_file=utility.get_latest_scan_from_downloads()):
-    data = read_data.read_data(input_file)
+    data = utility.read_data(input_file)
 
     apps = ['Human Services', 'Milestone','CCure', 'LandNAV', 'Papercut', 'OMS', 'Kronos', 'Pinnacle', 'New World', 'Laserfiche', 'AWS', 'County Law', 'Public Works', 'Misc']
 
