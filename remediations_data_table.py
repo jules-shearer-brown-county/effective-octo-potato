@@ -1,7 +1,34 @@
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import pandas as pd
 import plotly.express as px
-import read_data, utility, proccess_apps_team
+import plotly.graph_objects as go
+import utility, proccess_apps_team
+
+columns=[
+    'first_seen',
+    'last_seen',
+    'ack_dt',
+    'ack_by',
+    'closed_dt',
+    'closed_by',
+    'details.type',
+    'details.results',
+    #'vuln_id.vuln_id',
+    'vuln_id.name',
+    'vuln_id.severity',
+    #'vuln_id.unique_id',
+    #'vuln_id.first_seen',
+    #'vuln_id.last_seen',
+    'vuln_id.cve',
+    'vuln_id.exploit',
+    #'host_id.host_id',
+    'host_id.hostname',
+    #'host_id.ip_address',
+    #'host_id.risk_score',
+    #'host_id.criticality',
+    #'ttr',
+    'vuln_id.link',
+    'host_id.link']
 
 def severity_pie_chart(grouped_by_severity):
     grouped_by_severity.rename(
@@ -27,19 +54,29 @@ def severity_pie_chart(grouped_by_severity):
 
 results = utility.get_remediations()
 
-df = read_data.read_data(results)
+df = utility.read_data(results)
 
 grouped_by_severity = df[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
 
-app = Dash()
+counts = pd.concat([
+    df['first_seen'].value_counts(),
+    df['ack_dt'].value_counts().mul(-1),
+    df['closed_dt'].value_counts().mul(-1)
+])
 
-# Requires Dash 2.17.0 or later
-app.layout = html.Div([
-    html.H4('Remediations'),
-    dcc.Graph(figure=severity_pie_chart(grouped_by_severity.count())),
-    dash_table.DataTable(
+counts.sort_index()
+counts = counts.reset_index()
+
+fig = go.Figure(go.Waterfall(
+    x=counts.index,
+    y=counts['count']
+))
+
+#PlotlyDataTable
+def tbl():
+    return dash_table.DataTable(
         df.to_dict('records'),
-        [{"name": i, "id": i} for i in df.columns],
+        columns= [{"name": i, "id": i, 'presentation': 'markdown'} if ((i=='host_id.link') | (i=='vuln_id.link')) else ({"name": i, "id": i}) for i in columns],
         page_action='native',
         sort_action='native',
         filter_action='native',
@@ -50,7 +87,14 @@ app.layout = html.Div([
             'maxWidth':'0'
         },
         page_size=20,
-    ),
+    )
+
+app = Dash()
+# Requires Dash 2.17.0 or later
+app.layout = html.Div([
+    html.H4('Remediations'),
+#    dcc.Graph(figure=fig),
+    tbl(),
     html.Div(id='datatable-interactivity-containter')
 ])
 
