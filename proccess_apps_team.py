@@ -9,9 +9,8 @@ import utility
 
 
 def print_results(data):
-    grouped_by_application = data[['hvm_id', 'Application']].groupby('Application')
     print("Applications and their count of vulnerabilties")
-    print(grouped_by_application.count())
+    print(data.value_counts(subset=['Application','vuln_id.severity'], sort=False))
 
     print("Hosts and their count of vulnerabilties")
     grouped_by_hosts = data[['hvm_id', 'host_id.hostname']].groupby('host_id.hostname')
