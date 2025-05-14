@@ -30,6 +30,24 @@ columns_to_show=[
     'vuln_id.link',
     'host_id.link']
 
+def tbl(df, columns_to_show=columns_to_show):
+
+    table = dash_table.DataTable(
+        df.to_dict('records'),
+        columns = [{"name": i, "id": i, 'presentation': 'markdown'} if ((i=='host_id.link') | (i=='vuln_id.link')) else ({"name": i, "id": i}) for i in columns_to_show],
+        page_action='native',
+        sort_action='native',
+        filter_action='native',
+        sort_mode='multi',
+        style_cell={
+            'overflow':'hidden',
+            'TextOverflow':'ellipsis',
+            'maxWidth':'0'
+        },
+        page_size=25,
+    )
+    return table
+
 df = utility.read_data(utility.get_remediations())
 
 app = Dash()
@@ -37,7 +55,7 @@ app = Dash()
 app.layout = html.Div([
     html.H4('Remediations'),
     dcc.Graph(figure=figures.waterfall(df)),
-    figures.tbl(df, columns_to_show),
+    tbl(df, columns_to_show),
     html.Div(id='datatable-interactivity-containter')
 ])
 
