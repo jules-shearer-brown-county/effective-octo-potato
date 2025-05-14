@@ -1,4 +1,4 @@
-from dash import Dash, html, dash_table, dcc, callback, Output, Input
+from dash import Dash, html, dcc, callback, Output, Input
 import pandas as pd
 import plotly.express as px
 import proccess_apps_team
@@ -78,18 +78,7 @@ app = Dash()
 # Requires Dash 2.17.0 or later
 app.layout = html.Div([
     html.H4('Vulnerabilites'),
-    #dcc.Graph(figure=severity_pie_chart(grouped_by_severity.count())),
-    dash_table.DataTable(
-        df.to_dict('records'),
-        columns= [{"name": i, "id": i, 'presentation': 'markdown'} if ((i=='host_id.link') | (i=='vuln_id.link')) else ({"name": i, "id": i}) for i in columns],
-        page_action='native',
-        style_cell={
-            'overflow':'hidden',
-            'TextOverflow':'ellipsis',
-            'maxWidth':'0'
-        },
-        page_size=25,
-    ),
+    dcc.Graph(figure=severity_pie_chart(grouped_by_severity.count())),
     html.Div(id='datatable-interactivity-containter'),
     dcc.Dropdown(id='Application',
                  options=apps,
