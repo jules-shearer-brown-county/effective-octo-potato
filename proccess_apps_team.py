@@ -24,9 +24,6 @@ def print_results(data):
     grouped_by_severity = data[['hvm_id', 'vuln_id.severity']].groupby('vuln_id.severity')
     print(grouped_by_severity.count())
 
-    for i in range(datetime.datetime.now().month):
-        firstseen_by_month = data[(data['first_seen'] > datetime.date(2024,i+1,1)) & (data['first_seen'] < datetime.date(2025,i+2,1))]
-        print("%d for the %d month of the year" % (len(firstseen_by_month.index), i))
 
 def proccess_apps_team(input_file=utility.get_latest_scan_from_downloads()):
     data = utility.read_data(input_file)
