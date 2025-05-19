@@ -5,25 +5,29 @@ import utility
 import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
+import datetime
 
 def waterfall(df):
-    counts = count_discovered_and_closed(df)
-
-    fig = go.Figure(go.Waterfall(
-        x=counts.index,
-        y=counts
-    ))
-    return fig
-
-def count_discovered_and_closed(df):
     counts = pd.concat([
         df['first_seen'].value_counts(),
         df['ack_dt'].value_counts().mul(-1),
         df['closed_dt'].value_counts().mul(-1)
-    ])
-    counts.index= pd.to_datetime(counts.index)
-    counts = counts.resample('ME').sum()
-    return counts
+    ], keys=['opened', 'acknowledged','closed'])
+    last_year=counts.filter([i for i in counts.index if i[1] < datetime.date(2025,1,1)])
+    counts = counts.drop(last_year.index)
+    counts[('total',datetime.date(2024,12,31))]=last_year.sum()
+    counts=counts.sort_index(level=1)
+
+    counts = pd.DataFrame(counts).reset_index()
+
+    fig = go.Figure(go.Waterfall(
+        x=counts.index,
+        y=counts['count']
+
+    ))
+    fig.update_layout(title="Vulnerability Discovery and Resolution")
+    return fig
+
 
 
 def severity_pie_chart(grouped_by_severity):

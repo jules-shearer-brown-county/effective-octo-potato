@@ -39,11 +39,22 @@ def tbl(df, columns_to_show=columns_to_show):
         sort_action='native',
         filter_action='native',
         sort_mode='multi',
-        style_cell={
-            'overflow':'hidden',
-            'TextOverflow':'ellipsis',
-            'maxWidth':'0'
+        style_table={
+            'height':'400px',
+            'width':'fill',
+            'overflowY':'auto'
         },
+        style_cell={
+            'overflow':'auto',
+            'TextOverflow':'ellipsis',
+            'minWidth':'100'
+        },
+        style_data_conditional=[
+            {
+            'if':{'row_index':'odd'},
+            'backgroundColor':'lightgreen'
+        }
+        ],
         page_size=25,
     )
     return table
@@ -55,10 +66,10 @@ app = Dash()
 app.layout = html.Div([
     html.H4('Remediations'),
     dcc.Graph(figure=figures.waterfall(df)),
-    tbl(df, columns_to_show),
+    #tbl(df, columns_to_show),
     html.Div(id='datatable-interactivity-containter')
 ])
 
 if __name__ == '__main__':
-    utility.open_dashboard_in_firefox()
+    #utility.open_dashboard_in_firefox()
     app.run(debug=True)
