@@ -3,6 +3,12 @@
 import os, subprocess, glob
 import pandas as pd
 
+def add_apps(data):
+    apps=pd.read_excel("/mnt/c/Users/jules.shearer/Downloads/names_and_tags.xlsx")
+    data['Application'] = pd.Series(dtype=str)
+    data.merge(apps, how='left', on='host_id.hostname')
+    return data
+
 def read_data(fileLocation):
     data = pd.read_excel(fileLocation)
     data['first_seen'] = pd.to_datetime(data['first_seen'], unit='s')
@@ -12,6 +18,7 @@ def read_data(fileLocation):
     data['host_id.link'] = '[link](' + 'https://app.uncommonx.com/network-disc/host/' + data['host_id.host_id'].astype(str) +  ')'
     if( 'ack_dt' in data.columns ):
         data['ack_dt'] = pd.to_datetime(data['ack_dt'], unit='s')
+    data = add_apps(data)
     return data.drop(columns=[col for col in data if data[data[col].notna()].empty])
 
 def open_file_in_browser(html_path):
