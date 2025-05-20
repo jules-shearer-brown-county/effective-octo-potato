@@ -53,7 +53,7 @@ def severity_pie_chart(df):
             'High' : 'orange',
             'Critical':'red'}
     )
-    severity_pie.update_traces(textposition='inside', textinfo='percent+label' )
+    severity_pie.update_traces(textposition='inside', textinfo='percent+label+value' )
     return severity_pie
 
 if __name__ == '__main__':
