@@ -5,8 +5,7 @@ import pandas as pd
 
 def add_apps(data):
     apps=pd.read_excel("/mnt/c/Users/jules.shearer/Downloads/names_and_tags.xlsx")
-    data['Application'] = pd.Series(dtype=str)
-    data.merge(apps, how='left', on='host_id.hostname')
+    data = data.merge(apps, how='left', on='host_id.hostname')
     return data
 
 def read_data(fileLocation):

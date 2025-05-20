@@ -27,14 +27,6 @@ def print_results(data):
 
 def proccess_apps_team(input_file=utility.get_latest_scan_from_downloads()):
     data = utility.read_data(input_file)
-
-    apps = ['Human Services', 'Milestone','CCure', 'LandNAV', 'Papercut', 'OMS', 'Kronos', 'Pinnacle', 'New World', 'Laserfiche', 'AWS', 'County Law', 'Public Works', 'Misc']
-
-    data['Application'] = pd.Series(dtype=str)
-    for app_name in apps:
-        data = data[data['host_id.custom_tags'].notna()]
-        data.loc[data['host_id.custom_tags'].str.contains(app_name), 'Application'] = app_name
-
     return data
 
 if __name__ ==  '__main__':
