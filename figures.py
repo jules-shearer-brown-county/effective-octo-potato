@@ -33,7 +33,8 @@ def waterfall(df):
 
 
 
-def severity_pie_chart(grouped_by_severity):
+def severity_pie_chart(df):
+    grouped_by_severity = df.value_counts('vuln_id.severity')
     grouped_by_severity.rename(
             index={
                 3:'Medium',
@@ -44,7 +45,7 @@ def severity_pie_chart(grouped_by_severity):
     severity_pie = px.pie(
         grouped_by_severity,
         names=grouped_by_severity.index,
-        values='hvm_id',
+        values=grouped_by_severity.values,
         title="Number of vulnerabilties severity as % of whole",
         color=grouped_by_severity.index,
         color_discrete_map={
@@ -57,5 +58,4 @@ def severity_pie_chart(grouped_by_severity):
 
 if __name__ == '__main__':
     df = utility.read_data(utility.get_remediations())
-
-    utility.view(waterfall(df))
+    utility.view(severity_pie_chart(df))
