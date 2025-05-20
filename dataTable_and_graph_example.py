@@ -32,19 +32,23 @@ columns_to_show=[
     #'host_id.criticality',
     #'ttr',
     'vuln_id.link',
-    'host_id.link']
-
-PAGE_SIZE = 25
+    'host_id.link',
+    'Application'
+]
 
 app.layout = html.Div(
     className="row",
     children=[
         html.Div(
+            id='table-paging-with-graph-container',
+            className="five columns"
+        ),
+        html.Div(
             dash_table.DataTable(
                 id='table-paging-with-graph',
                 columns = [{"name": i, "id": i, 'presentation': 'markdown'} if ((i=='host_id.link') | (i=='vuln_id.link')) else ({"name": i, "id": i}) for i in columns_to_show],
                 page_current=0,
-                page_size=20,
+                page_size=100,
                 page_action='custom',
 
                 filter_action='custom',
@@ -54,27 +58,17 @@ app.layout = html.Div(
                 sort_by=[],
                 sort_mode='multi',
                 style_table={
-                    'height':'400px',
+                    'height':'fill',
                     'width':'fill',
-                    'overflowY':'auto'
                 },
                 style_cell={
-                    'overflow':'auto',
-                    'TextOverflow':'ellipsis',
-                    'minWidth':'100'
+                    'overflow':'hidden',
+                    'textOverflow':'ellipsis',
+                    'maxWidth':0,
                 },
-                style_data_conditional=[
-                    {
-                    'if':{'row_index':'odd'},
-                    'backgroundColor':'lightgreen'
-                }
-                ],
             ),
+
             className="six columns"
-        ),
-        html.Div(
-            id='table-paging-with-graph-container',
-            className="five columns"
         )
     ]
 )
@@ -112,14 +106,7 @@ def split_filter_part(filter_part):
 
     return [None] * 3
 
-
-@callback(
-    Output('table-paging-with-graph', "data"),
-    Input('table-paging-with-graph', "page_current"),
-    Input('table-paging-with-graph', "page_size"),
-    Input('table-paging-with-graph', "sort_by"),
-    Input('table-paging-with-graph', "filter_query"))
-def update_table(page_current, page_size, sort_by, filter):
+def update_data(filter):
     filtering_expressions = filter.split(' && ')
     dff = df
     for filter_part in filtering_expressions:
@@ -129,12 +116,45 @@ def update_table(page_current, page_size, sort_by, filter):
             # these operators match pandas series operator method names
             dff = dff.loc[getattr(dff[col_name], operator)(filter_value)]
         elif operator == 'contains':
-            dff = dff.loc[dff[col_name].str.contains(filter_value)]
+            dff = dff.loc[dff[col_name].str.contains(filter_value, na=False)]
         elif operator == 'datestartswith':
             # this is a simplification of the front-end filtering logic,
             # only works with complete fields in standard format
-            dff = dff.loc[dff[col_name].str.startswith(filter_value)]
+            dff = dff.loc[dff[col_name].str.startswith(filter_value, na=False)]
 
+    return dff
+
+@callback(
+    Output('table-paging-with-graph', "data"),
+    Input('table-paging-with-graph', "page_current"),
+    Input('table-paging-with-graph', "page_size"),
+    Input('table-paging-with-graph', "sort_by"),
+    Input('table-paging-with-graph', "filter_query"))
+
+def update_table(page_current, page_size, sort_by, filter):
+    dff=update_data(filter)
+    if len(sort_by):
+        dff = dff.sort_values(
+            [col['column_id'] for col in sort_by],
+            ascending=[
+                col['direction'] == 'asc'
+                for col in sort_by
+            ],
+            inplace=False
+        )
+    return dff.iloc[
+        page_current*page_size: (page_current + 1)*page_size
+    ].to_dict('records')
+
+
+@callback(
+    Output('table-paging-with-graph-container', "children"),
+    Input('table-paging-with-graph', "data"),
+    Input('table-paging-with-graph', "sort_by"),
+    Input('table-paging-with-graph', "filter_query"))
+
+def update_graph(rows, sort_by, filter):
+    dff=update_data(filter)
     if len(sort_by):
         dff = dff.sort_values(
             [col['column_id'] for col in sort_by],
@@ -145,16 +165,6 @@ def update_table(page_current, page_size, sort_by, filter):
             inplace=False
         )
 
-    return dff.iloc[
-        page_current*page_size: (page_current + 1)*page_size
-    ].to_dict('records')
-
-
-@callback(
-    Output('table-paging-with-graph-container', "children"),
-    Input('table-paging-with-graph', "data"))
-def update_graph(rows):
-    dff = pd.DataFrame(rows)
     return html.Div(
         [
             dcc.Graph(
