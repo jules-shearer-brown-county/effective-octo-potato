@@ -7,14 +7,16 @@ import figures
 app = Dash()
 
 df = proccess_apps_team.proccess_apps_team()
+#Filter out the rows where there is not application assigned
+df=df[df['Application'].notna()]
 
 columns_to_show=[
     'last_seen',
     #'first_seen',
-    #''ack_dt',
-    'ack_by',
+    #'ack_dt',
+    #'ack_by',
     #'closed_dt',
-    'closed_by',
+    #'closed_by',
     #''details.type',
     #''details.results',
     #'vuln_id.vuln_id',
@@ -24,7 +26,7 @@ columns_to_show=[
     #'vuln_id.first_seen',
     #'vuln_id.last_seen',
     'vuln_id.cve',
-    'vuln_id.exploit',
+    #'vuln_id.exploit',
     #'host_id.host_id',
     'host_id.hostname',
     #'host_id.ip_address',
@@ -106,7 +108,7 @@ def split_filter_part(filter_part):
 
     return [None] * 3
 
-def update_data(filter):
+def update_data(sort_by, filter):
     filtering_expressions = filter.split(' && ')
     dff = df
     for filter_part in filtering_expressions:
@@ -122,6 +124,16 @@ def update_data(filter):
             # only works with complete fields in standard format
             dff = dff.loc[dff[col_name].str.startswith(filter_value, na=False)]
 
+    if len(sort_by):
+        dff = dff.sort_values(
+            [col['column_id'] for col in sort_by],
+            ascending=[
+                col['direction'] == 'asc'
+                for col in sort_by
+            ],
+            inplace=False
+        )
+
     return dff
 
 @callback(
@@ -132,16 +144,7 @@ def update_data(filter):
     Input('table-paging-with-graph', "filter_query"))
 
 def update_table(page_current, page_size, sort_by, filter):
-    dff=update_data(filter)
-    if len(sort_by):
-        dff = dff.sort_values(
-            [col['column_id'] for col in sort_by],
-            ascending=[
-                col['direction'] == 'asc'
-                for col in sort_by
-            ],
-            inplace=False
-        )
+    dff=update_data(sort_by, filter)
     return dff.iloc[
         page_current*page_size: (page_current + 1)*page_size
     ].to_dict('records')
@@ -154,21 +157,12 @@ def update_table(page_current, page_size, sort_by, filter):
     Input('table-paging-with-graph', "filter_query"))
 
 def update_graph(rows, sort_by, filter):
-    dff=update_data(filter)
-    if len(sort_by):
-        dff = dff.sort_values(
-            [col['column_id'] for col in sort_by],
-            ascending=[
-                col['direction'] == 'asc'
-                for col in sort_by
-            ],
-            inplace=False
-        )
+    dff=update_data(sort_by, filter)
 
     return html.Div(
         [
             dcc.Graph(
-                figure=figures.severity_pie_chart(dff)
+                figure=figures.app_and_severity(dff)
             )
         ]
     )
