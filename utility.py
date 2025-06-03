@@ -60,7 +60,7 @@ def unique_scans_results():
 
 def get_remediations():
     dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
-    files = glob.glob(dir_name + 'Remediated (2).xlsx')
+    files = glob.glob(dir_name + 'vuln_remediation_export_*.xlsx')
     return max(files, key=os.path.getctime)
 
 def get_names_and_tags():
