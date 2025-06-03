@@ -34,4 +34,3 @@ if __name__ ==  '__main__':
     data = proccess_apps_team()
     print_results(data)
 
-print('EOF')
