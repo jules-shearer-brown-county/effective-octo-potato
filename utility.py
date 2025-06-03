@@ -8,6 +8,16 @@ def add_apps(data):
     data = data.merge(apps, how='left', on='host_id.hostname')
     return data
 
+def get_remediations():
+    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
+    files = glob.glob(dir_name + 'vuln_remediation_export_*.xlsx')
+    return max(files, key=os.path.getctime)
+
+def get_names_and_tags():
+    file_name = "/mnt/c/Users/Jules.Shearer/Downloads/" + 'names_and_tags.xlsx'
+    apps = pd.read_excel(file_name)
+    return apps[apps['Application'].notna()]
+
 def read_data(fileLocation):
     data = pd.read_excel(fileLocation)
     data['first_seen'] = pd.to_datetime(data['first_seen'], unit='s')
@@ -58,12 +68,3 @@ def unique_scans_results():
     scans = pd.concat(get_file_path_for_all_scans_from_downloads())
     return scans.sort_values('last_seen').drop_duplicates(subset=['hvm_id'], keep='last')
 
-def get_remediations():
-    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
-    files = glob.glob(dir_name + 'vuln_remediation_export_*.xlsx')
-    return max(files, key=os.path.getctime)
-
-def get_names_and_tags():
-    file_name = "/mnt/c/Users/Jules.Shearer/Downloads/" + 'names_and_tags.xlsx'
-    apps = pd.read_excel(file_name)
-    return apps[apps['Application'].notna()]
