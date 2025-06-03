@@ -22,7 +22,6 @@ def read_data(fileLocation):
     data = pd.read_excel(fileLocation)
     data['first_seen'] = pd.to_datetime(data['first_seen'], unit='s')
     data['last_seen'] = pd.to_datetime(data['last_seen'], unit='s')
-    data['closed_dt'] = pd.to_datetime(data['closed_dt'], unit='s')
     data['vuln_id.severity']= data['vuln_id.severity'].replace({
         3:'Medium',
         4:'High',
@@ -31,6 +30,10 @@ def read_data(fileLocation):
     data['host_id.link'] = '[link](' + 'https://app.uncommonx.com/network-disc/host/' + data['host_id.host_id'].astype(str) +  ')'
     if( 'ack_dt' in data.columns ):
         data['ack_dt'] = pd.to_datetime(data['ack_dt'], unit='s')
+    if( 'ttr' in data.columns ):
+        data['closed_dt'] = data['first_seen'] + pd.to_timedelta(data['ttr'], unit='d')
+    else:
+        data['closed_dt'] = pd.to_datetime(data['closed_dt'], unit='s')
     data = add_apps(data)
     return data.drop(columns=[col for col in data if data[data[col].notna()].empty])
 

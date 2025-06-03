@@ -26,8 +26,8 @@ def print_results(data):
 
 
 def proccess_apps_team(input_file=utility.get_latest_scan_from_downloads()):
-    data = utility.read_data(input_file)
-    return data
+    vulnerabilites = utility.read_data(input_file)
+    return vulnerabilites
 
 if __name__ ==  '__main__':
 
