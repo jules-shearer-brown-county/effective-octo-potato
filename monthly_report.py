@@ -8,7 +8,6 @@ import utility
 app = Dash()
 
 df = pd.concat([proccess_apps_team.proccess_apps_team(), proccess_apps_team.proccess_apps_team(utility.get_remediations()), proccess_apps_team.proccess_apps_team("/mnt/c/Users/jules.shearer/Downloads/brown_county_gov_vuln_rememdiation_365.xlsx")])
-df.unique
 #Filter out the rows where there is not application assigned
 df=df[df['Application'].notna()]
 
@@ -44,19 +43,25 @@ app.layout = html.Div(
     className="row",
     children=[
         html.Div(
+            html.H1("Uncommon X June",className="bg-secondary text-white p-2 mb-4")
+        ),
+        html.H3("Remedations, Acknowledgements, and Discovery year to date",className="bg-tertiary text-white p-2 mb-4"),
+        html.Div(
             id='table-paging-with-graph-container-waterfall',
             className="waterfall columns"
         ),
+        html.H3("Current State",className="bg-tertiary text-white p-2 mb-4"),
         html.Div(
             id='table-paging-with-graph-container-pie',
             className="five columns"
         ),
+        html.H3("Ack",className="bg-tertiary text-white p-2 mb-4"),
         html.Div(
             dash_table.DataTable(
                 id='table-paging-with-graph',
                 columns = [{"name": i, "id": i, 'presentation': 'markdown'} if ((i=='host_id.link') | (i=='vuln_id.link')) else ({"name": i, "id": i}) for i in columns_to_show],
                 page_current=0,
-                page_size=100,
+                page_size=10,
                 page_action='custom',
 
                 filter_action='custom',
@@ -77,7 +82,8 @@ app.layout = html.Div(
             ),
 
             className="six columns"
-        )
+        ),
+        html.H3("Fixes",className="bg-tertiary text-white p-2 mb-4"),
     ]
 )
 
