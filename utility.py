@@ -18,8 +18,7 @@ def get_names_and_tags():
     apps = pd.read_excel(file_name)
     return apps[apps['Application'].notna()]
 
-def read_data(fileLocation):
-    data = pd.read_excel(fileLocation)
+def preprocess(data):
     data['first_seen'] = pd.to_datetime(data['first_seen'], unit='s')
     data['last_seen'] = pd.to_datetime(data['last_seen'], unit='s')
     data['vuln_id.severity']= data['vuln_id.severity'].replace({
@@ -35,7 +34,25 @@ def read_data(fileLocation):
     else:
         data['closed_dt'] = pd.to_datetime(data['closed_dt'], unit='s')
     data = add_apps(data)
+    data = assign_status(data)
     return data.drop(columns=[col for col in data if data[data[col].notna()].empty])
+
+def assign_status(data):
+    remediation_category = pd.CategoricalDtype(categories=['open', 'fixed', 'acknowledged', 'closed'])
+    data["remediation_category"] = pd.Series('open', index=data.index, dtype='category')
+    data["remediation_category"] = data["remediation_category"].astype(remediation_category)
+    if 'ack_dt' in data.columns:
+        data.remediation_category = data.remediation_category.where(pd.notna(data.ack_dt), 'acknowledged')
+    if 'closed_dt' in data.columns:
+        data.remediation_category = data.remediation_category.where(pd.notna(data.closed_dt), 'fixed')
+    if 'ttr' in data.columns:
+        data.remediation_category = data.remediation_category.where((pd.isna(data.ack_dt) & pd.isna(data.closed_dt) & data.ttr.notna()), 'closed')
+    return data
+
+def read_data(fileLocation):
+    data = pd.read_excel(fileLocation)
+    data = preprocess(data)
+    return data
 
 def open_file_in_browser(html_path):
     current_dir = os.getcwd()
@@ -70,4 +87,10 @@ def get_file_path_for_all_scans_from_downloads():
 def unique_scans_results():
     scans = pd.concat(get_file_path_for_all_scans_from_downloads())
     return scans.sort_values('last_seen').drop_duplicates(subset=['hvm_id'], keep='last')
+
+
+
+if __name__ ==  '__main__':
+
+    data = pd.concat([read_data(get_remediations()), read_data(get_latest_scan_from_downloads())])
 

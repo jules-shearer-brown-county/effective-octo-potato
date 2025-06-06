@@ -33,9 +33,10 @@ def waterfall(df):
     return fig
 
 def app_and_severity(df):
-    fig = make_subplots(rows=1, cols=2, specs=[[{'type':'domain'},{'type':'domain'} ]])
+    fig = make_subplots(rows=1, cols=3, specs=[[{'type':'domain'},{'type':'domain'},{'type':'domain'} ]])
     fig.add_trace(pie_chart(df, 'vuln_id.severity'), 1,1)
     fig.add_trace(pie_chart(df, 'Application'), 1,2)
+    fig.add_trace(pie_chart(df, 'remediation_category'), 1,3)
     fig.update_traces(textposition='inside', textinfo='percent+label+value')
     fig.update(layout_showlegend=False)
     return fig
@@ -86,5 +87,5 @@ def pie_chart(df, col):
     return pie
 
 if __name__ == '__main__':
-    df = utility.read_data(utility.get_remediations())
-    utility.view(pie_chart(df))
+    df = pd.concat([utility.read_data(utility.get_remediations()), utility.read_data(utility.get_latest_scan_from_downloads())])
+    utility.view(app_and_severity(df))

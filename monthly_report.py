@@ -8,8 +8,9 @@ import utility
 app = Dash()
 
 df = pd.concat([proccess_apps_team.proccess_apps_team(), proccess_apps_team.proccess_apps_team(utility.get_remediations()), proccess_apps_team.proccess_apps_team("/mnt/c/Users/jules.shearer/Downloads/brown_county_gov_vuln_rememdiation_365.xlsx")])
+df.drop_duplicates(subset='hvm_id', keep='last', inplace=True)
 #Filter out the rows where there is not application assigned
-df=df[df['Application'].notna()]
+#df=df[df['Application'].notna()]
 
 columns_to_show=[
     'last_seen',
@@ -55,7 +56,7 @@ app.layout = html.Div(
             id='table-paging-with-graph-container-pie',
             className="five columns"
         ),
-        html.H3("Ack",className="bg-tertiary text-white p-2 mb-4"),
+        html.H3("Open",className="bg-tertiary text-white p-2 mb-4"),
         html.Div(
             dash_table.DataTable(
                 id='table-paging-with-graph',
