@@ -10,7 +10,7 @@ app = Dash()
 df = pd.concat([proccess_apps_team.proccess_apps_team(), proccess_apps_team.proccess_apps_team(utility.get_remediations()), proccess_apps_team.proccess_apps_team("/mnt/c/Users/jules.shearer/Downloads/brown_county_gov_vuln_rememdiation_365.xlsx")])
 df.drop_duplicates(subset='hvm_id', keep='last', inplace=True)
 #Filter out the rows where there is not application assigned
-#df=df[df['Application'].notna()]
+df=df[df['Application'].notna()]
 
 columns_to_show=[
     'last_seen',
@@ -85,6 +85,27 @@ app.layout = html.Div(
             className="six columns"
         ),
         html.H3("Fixes",className="bg-tertiary text-white p-2 mb-4"),
+        html.Div(
+            dash_table.DataTable(
+                id='table-paging-with-graph-fixes',
+                data=df.to_dict('records'),
+                columns = [{"name": i, "id": i, 'presentation': 'markdown'} if ((i=='host_id.link') | (i=='vuln_id.link')) else ({"name": i, "id": i}) for i in columns_to_show],
+                page_current=0,
+                sort_action='custom',
+                sort_by=[],
+                style_table={
+                    'height':'fill',
+                    'width':'fill',
+                },
+                style_cell={
+                    'overflow':'hidden',
+                    'textOverflow':'ellipsis',
+                    'maxWidth':0,
+                },
+            ),
+
+            className="six columns"
+        ),
     ]
 )
 
