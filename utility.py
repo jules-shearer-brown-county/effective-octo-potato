@@ -13,6 +13,11 @@ def get_remediations():
     files = glob.glob(dir_name + 'vuln_remediation_export_*.xlsx')
     return max(files, key=os.path.getctime)
 
+def get_hosts_export():
+    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
+    files = glob.glob(dir_name + 'hosts_export*.xlsx')
+    return max(files, key=os.path.getctime)
+
 def get_names_and_tags():
     file_name = "/mnt/c/Users/Jules.Shearer/Downloads/" + 'names_and_tags.xlsx'
     apps = pd.read_excel(file_name)
