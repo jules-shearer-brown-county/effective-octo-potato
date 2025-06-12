@@ -17,7 +17,7 @@ def print_results(data):
     print(grouped_by_hosts.count())
 
     print("discovery date and their count of vulnerabilties")
-    grouped_by_first_seen_date = data[['hvm_id', 'first_seen_date']].groupby('first_seen_date')
+    grouped_by_first_seen_date = data[['hvm_id', 'first_seen']].groupby('first_seen')
     print(grouped_by_first_seen_date.count())
 
     print("Severity and their count of vulnerabilties")
@@ -31,6 +31,7 @@ def proccess_apps_team(input_file=utility.get_latest_scan_from_downloads()):
 
 if __name__ ==  '__main__':
 
-    data = proccess_apps_team()
-    print_results(data)
+    open_vuln = proccess_apps_team()
+    resolved_vuln = utility.read_data(utility.get_remediations())
+    print_results(open_vuln)
 

@@ -13,6 +13,7 @@ def get_remediations():
     files = glob.glob(dir_name + 'vuln_remediation_export_*.xlsx')
     return max(files, key=os.path.getctime)
 
+
 def get_hosts_export():
     dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
     files = glob.glob(dir_name + 'hosts_export*.xlsx')
@@ -46,12 +47,10 @@ def assign_status(data):
     remediation_category = pd.CategoricalDtype(categories=['open', 'fixed', 'acknowledged', 'closed'])
     data["remediation_category"] = pd.Series('open', index=data.index, dtype='category')
     data["remediation_category"] = data["remediation_category"].astype(remediation_category)
-    if 'ack_dt' in data.columns:
-        data.remediation_category = data.remediation_category.where(pd.notna(data.ack_dt), 'acknowledged')
-    if 'closed_dt' in data.columns:
-        data.remediation_category = data.remediation_category.where(pd.notna(data.closed_dt), 'fixed')
+    data.loc[data.ack_dt.notna(), 'remediation_category']='acknowledged'
+    data.loc[data.closed_dt.notna() & data.ack_dt.isna(), 'remediation_category']='fixed'
     if 'ttr' in data.columns:
-        data.remediation_category = data.remediation_category.where((pd.isna(data.ack_dt) & pd.isna(data.closed_dt) & data.ttr.notna()), 'closed')
+        data.loc[data.ack_dt.isna() & data.closed_dt.isna() & data.ttr.notna(), 'remediation_category']='closed'
     return data
 
 def read_data(fileLocation):
@@ -92,8 +91,6 @@ def get_file_path_for_all_scans_from_downloads():
 def unique_scans_results():
     scans = pd.concat(get_file_path_for_all_scans_from_downloads())
     return scans.sort_values('last_seen').drop_duplicates(subset=['hvm_id'], keep='last')
-
-
 
 if __name__ ==  '__main__':
 

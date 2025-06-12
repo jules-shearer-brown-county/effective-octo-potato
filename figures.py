@@ -25,7 +25,6 @@ def waterfall(df):
         y=counts['hvm_id'],
         textposition='outside',
         textinfo='delta',
-        showlegend=True,
         decreasing = {"marker":{"color":"green", "line":{"color":"black", "width":2}}},
         increasing = {"marker":{"color":"red"}},
     ))
@@ -82,10 +81,24 @@ def pie_chart(df, col):
         labels=counts.index,
         values=counts.values,
         title= "Percent of whole for %s" % col,
-        name=col
+        name=col,
+        #color=counts.index
     )
     return pie
 
+def workstation_coverage(count=1):
+    Departments = ['ADMIN', 'ADRC', 'ADRC Public PC', 'AIRPORT (using different PC names)', 'CHILDSUPPORT', 'CORPCOUNSEL', 'COUNTYBOARD', 'COUNTYCLERK', 'COUNTYEXEC', 'CTC', 'DTF', 'FACILITIES', 'GOLF', 'HEALTH', 'HR', 'HUMANSERVICES', 'Human Services:  Economic Support', 'Highway Department', 'JAIL', 'LIBRARY', 'LWC', 'MEDEXAMINER', 'MUSEUM', 'PALS', 'PARKSMGMT', 'PORTRESREC', 'PSC', 'PUBLICWORKS', 'ROD Public', 'ROD', 'SHERIFF', 'SYBLEHOPP', 'TECHSERVICES', 'TREASURER', 'UWEXT', 'VETERANS', 'Zoo', 'Public ', 'Public CTC', 'Public Library(Full AZURE Join)', 'Public Museum', 'Sheriff Squad Card', 'Test Machines']
+    title='Currently Scanning %s of %s departments'%(count, str(len(Departments)))
+    fig = go.Figure(data=[go.Bar(y=[count])], layout_xaxis_range=[0,len(Departments)])
+    fig.update_layout(
+        title_text=title
+    )
+    return fig
+
+def total_devices(data):
+    px.bar(data)
+    return fig
+
 if __name__ == '__main__':
-    df = pd.concat([utility.read_data(utility.get_remediations()), utility.read_data(utility.get_latest_scan_from_downloads())])
-    utility.view(app_and_severity(df))
+    fig = total_devices(267, 2489)
+    fig.show(renderer='firefox')

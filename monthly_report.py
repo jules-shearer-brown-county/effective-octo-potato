@@ -37,6 +37,7 @@ columns_to_show=[
     #'ttr',
     'vuln_id.link',
     'host_id.link',
+    'remediation_category.link',
     'Application'
 ]
 
@@ -52,9 +53,51 @@ app.layout = html.Div(
             className="waterfall columns"
         ),
         html.H3("Current State",className="bg-tertiary text-white p-2 mb-4"),
+        html.Div([
+            html.H3("Scanning"),
+            html.P(
+                [html.Img(src='assets/green_checkmarkwebp.webp',
+                             style={'display': 'inline',
+                                    'maxWidth':'15px'}),
+                    "Servers",
+                    ]
+                   ),
+            html.P([html.Img(src='assets/green_checkmarkwebp.webp',
+                             style={'display': 'inline',
+                                    'maxWidth':'15px'}),
+                    "IT Workstations",
+                    ]),
+            html.P([
+                    html.Img(src='assets/red_x.webp',
+                             style={'display': 'inline',
+                                    'maxWidth':'15px'}),
+                "Other Workstations"
+            ]),
+        ]),
         html.Div(
             id='table-paging-with-graph-container-pie',
             className="five columns"
+        ),
+        html.H3("Pending Fixes and Acknowledgements",className="bg-tertiary text-white p-2 mb-4"),
+        html.Div(
+            dash_table.DataTable(
+                id='table-paging-with-graph-scheduled',
+                data=df[df.hvm_id == 2330].to_dict('records'),
+                columns = [{"name": i, "id": i, 'presentation': 'markdown'} if ((i=='host_id.link') | (i=='vuln_id.link')) else ({"name": i, "id": i}) for i in columns_to_show],
+                page_current=0,
+                sort_action='custom',
+                sort_by=[],
+                style_table={
+                    'height':'fill',
+                    'width':'fill',
+                },
+                style_cell={
+                    'overflow':'hidden',
+                    'textOverflow':'ellipsis',
+                    'maxWidth':0,
+                },
+            ),
+            className="six columns"
         ),
         html.H3("Open",className="bg-tertiary text-white p-2 mb-4"),
         html.Div(
@@ -84,11 +127,11 @@ app.layout = html.Div(
 
             className="six columns"
         ),
-        html.H3("Fixes",className="bg-tertiary text-white p-2 mb-4"),
+        html.H3("Applied Fixes and Acknowledgements",className="bg-tertiary text-white p-2 mb-4"),
         html.Div(
             dash_table.DataTable(
                 id='table-paging-with-graph-fixes',
-                data=df.to_dict('records'),
+                data=df[df.remediation_category!='open'].to_dict('records'),
                 columns = [{"name": i, "id": i, 'presentation': 'markdown'} if ((i=='host_id.link') | (i=='vuln_id.link')) else ({"name": i, "id": i}) for i in columns_to_show],
                 page_current=0,
                 sort_action='custom',
