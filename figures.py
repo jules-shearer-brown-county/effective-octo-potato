@@ -100,5 +100,27 @@ def total_devices(data):
     return fig
 
 if __name__ == '__main__':
-    fig = total_devices(267, 2489)
+    df = pd.concat([utility.read_data(), utility.read_data(utility.get_remediations()), utility.read_data("/mnt/c/Users/jules.shearer/Downloads/brown_county_gov_vuln_rememdiation_365.xlsx")], join='outer')
+    df.sort_values(by='last_seen', inplace=True)
+    #df.drop_duplicates(subset='hvm_id', inplace=True)
+    counts=pd.concat([
+        df.groupby(pd.Grouper(key='first_seen', freq='ME'))['hvm_id'].count(),
+        df.groupby(pd.Grouper(key='ack_dt', freq='ME')).count()['hvm_id'].mul(-1),
+        df.groupby(pd.Grouper(key='closed_dt', freq='ME')).count()['hvm_id'].mul(-1)
+    ], join='outer')
+    last_year=counts[counts.index < datetime.datetime(2025,1,1)]
+    counts = counts.drop(last_year.index)
+    counts[datetime.datetime(2024,12,31)]=last_year.sum()
+    counts=counts.sort_index(level=1)
+    counts = pd.DataFrame(counts).reset_index()
+
+    fig = go.Figure(go.Waterfall(
+        x=[[i.strftime('%B, %Y') for i in counts['index']], counts.index],
+        y=counts['hvm_id'],
+        textposition='outside',
+        textinfo='delta',
+        decreasing = {"marker":{"color":"green", "line":{"color":"black", "width":2}}},
+        increasing = {"marker":{"color":"red"}},
+    ))
+    fig.update_layout(title="Vulnerability Discovery and Resolution")
     fig.show(renderer='firefox')

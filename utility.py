@@ -31,8 +31,8 @@ def preprocess(data):
         3:'Medium',
         4:'High',
         5:'Critical'})
-    data['vuln_id.link'] = '[link](' + 'https://app.uncommonx.com/network-disc/vuln/' + data['vuln_id.vuln_id'].astype(str) +  ')'
-    data['host_id.link'] = '[link](' + 'https://app.uncommonx.com/network-disc/host/' + data['host_id.host_id'].astype(str) +  ')'
+    data['vuln_id.link'] = '[Vuln Link](' + 'https://app.uncommonx.com/network-disc/vuln/' + data['vuln_id.vuln_id'].astype(str) +  ')'
+    data['host_id.link'] = '[Host Link](' + 'https://app.uncommonx.com/network-disc/host/' + data['host_id.host_id'].astype(str) +  ')'
     if( 'ack_dt' in data.columns ):
         data['ack_dt'] = pd.to_datetime(data['ack_dt'], unit='s')
     if( 'ttr' in data.columns ):
@@ -49,11 +49,14 @@ def assign_status(data):
     data["remediation_category"] = data["remediation_category"].astype(remediation_category)
     data.loc[data.ack_dt.notna(), 'remediation_category']='acknowledged'
     data.loc[data.closed_dt.notna() & data.ack_dt.isna(), 'remediation_category']='fixed'
-    if 'ttr' in data.columns:
-        data.loc[data.ack_dt.isna() & data.closed_dt.isna() & data.ttr.notna(), 'remediation_category']='closed'
     return data
 
-def read_data(fileLocation):
+def get_latest_scan_from_downloads():
+    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
+    files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
+    return max(files, key=os.path.getctime)
+
+def read_data(fileLocation=get_latest_scan_from_downloads()):
     data = pd.read_excel(fileLocation)
     data = preprocess(data)
     return data
@@ -78,10 +81,6 @@ def view(fig):
     fig.write_html(html_path)
     open_file_in_browser(html_path)
 
-def get_latest_scan_from_downloads():
-    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
-    files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
-    return max(files, key=os.path.getctime)
 
 def get_file_path_for_all_scans_from_downloads():
     dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
