@@ -31,8 +31,8 @@ def preprocess(data):
         3:'Medium',
         4:'High',
         5:'Critical'})
-    data['vuln_id.link'] = '[Vuln Link](' + 'https://app.uncommonx.com/network-disc/vuln/' + data['vuln_id.vuln_id'].astype(str) +  ')'
-    data['host_id.link'] = '[Host Link](' + 'https://app.uncommonx.com/network-disc/host/' + data['host_id.host_id'].astype(str) +  ')'
+    data['vuln_id.link'] = 'https://app.uncommonx.com/network-disc/vuln/' + data['vuln_id.vuln_id'].astype(str)
+    data['host_id.link'] = 'https://app.uncommonx.com/network-disc/host/' + data['host_id.host_id'].astype(str)
     if( 'ack_dt' in data.columns ):
         data['ack_dt'] = pd.to_datetime(data['ack_dt'], unit='s')
     if( 'ttr' in data.columns ):
@@ -44,11 +44,11 @@ def preprocess(data):
     return data.drop(columns=[col for col in data if data[data[col].notna()].empty])
 
 def assign_status(data):
-    remediation_category = pd.CategoricalDtype(categories=['open', 'fixed', 'acknowledged', 'closed'])
-    data["remediation_category"] = pd.Series('open', index=data.index, dtype='category')
-    data["remediation_category"] = data["remediation_category"].astype(remediation_category)
-    data.loc[data.ack_dt.notna(), 'remediation_category']='acknowledged'
-    data.loc[data.closed_dt.notna() & data.ack_dt.isna(), 'remediation_category']='fixed'
+    remediation_category = pd.CategoricalDtype(categories=['Open', 'Remediated', 'Acknowledged', 'Closed'])
+    data["Category"] = pd.Series('Open', index=data.index, dtype='category')
+    data["Category"] = data["Category"].astype(remediation_category)
+    data.loc[data.ack_dt.notna(), 'Category']='Acknowledged'
+    data.loc[data.closed_dt.notna() & data.ack_dt.isna(), 'Category']='Remediated'
     return data
 
 def get_latest_scan_from_downloads():

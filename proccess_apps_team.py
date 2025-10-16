@@ -3,14 +3,19 @@
 
 import pandas as pd
 import sys, pyperclip, os, subprocess, datetime
-import plotly.express as px
 
 import utility
 
 
 def print_results(data):
+
+    data=data[data['Application'].notna()]
+
     print("Applications and their count of vulnerabilties")
     print(data.value_counts(subset=['Application','vuln_id.severity'], sort=False))
+
+    print("Total Applications related vulnerabilties")
+    print(sum(data.value_counts(subset=['Application','vuln_id.severity'], sort=False)))
 
     print("Applications and their count of unique critical vulnerabilties")
     counts=data.value_counts(subset=['Application','vuln_id.vuln_id','vuln_id.severity'], sort=False)
@@ -21,7 +26,7 @@ def print_results(data):
     print(grouped_by_hosts.count())
 
     print("discovery date and their count of vulnerabilties")
-    grouped_by_first_seen_date = data[['hvm_id', 'first_seen']].groupby('first_seen')
+    grouped_by_first_seen_date = data[['hvm_id', 'first_seen']].groupby(pd.Grouper(key='first_seen', axis=0, freq='ME' ))
     print(grouped_by_first_seen_date.count())
 
     print("Severity and their count of vulnerabilties")
