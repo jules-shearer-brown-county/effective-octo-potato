@@ -2,11 +2,12 @@
 #proccess_apps_team.py - chops up a vuln export based on host_id.custom_tags
 
 import pandas as pd
+import sys
 import proccess_apps_team
 import utility
 
 
-def prep():
+def prep(output_file):
     #Get the entire backlog of results and put it in one data frame
     df = pd.concat([proccess_apps_team.proccess_apps_team(), proccess_apps_team.proccess_apps_team(utility.get_remediations()), proccess_apps_team.proccess_apps_team("/mnt/c/Users/jules.shearer/Downloads/brown_county_gov_vuln_rememdiation_365.xlsx")])
     #sort the large data frame by last_seen
@@ -20,8 +21,14 @@ def prep():
     #Rename a couple of columns
     df=df.rename(columns={'first_seen':'First Seen', 'last_seen':'Last Seen', 'vuln_id.name':'Name', 'vuln_id.severity':'Severity','host_id.hostname':'Host','host_id.link':'url','vuln_id.link':'Link' })
     #Write the entire dataframe to an excel file
-    df.to_excel("/mnt/c/Users/jules.shearer/Downloads/data0.xlsx")
+    df.to_excel(output_file)
 
 
 if __name__ ==  '__main__':
-    prep()
+
+    try:
+        output_file = str(sys.argv[1])
+    except:
+        output_file = "/mnt/c/Users/jules.shearer/Downloads/prep_output.xlsx"
+
+    prep(output_file)
