@@ -24,7 +24,6 @@ def prep(*args):
     df=df[df['Application'].notna()]
 
     #Add a column "Pending" of type string
-    df['Pending'] = pd.Series(dtype='string')
     df['Pending'] = ''
 
     #Rename a couple of columns
