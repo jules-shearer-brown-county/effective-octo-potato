@@ -6,7 +6,7 @@ import sys
 import proccess_apps_team
 import utility
 
-def prep(*args):
+def prep(args):
     #Get the entire backlog of results and put it in one data frame
     df = pd.concat([proccess_apps_team.proccess_apps_team(),
                     proccess_apps_team.proccess_apps_team(utility.get_remediations()),
@@ -40,8 +40,6 @@ def prep(*args):
         df.to_excel(args)
     else:
         return df
-
-
 
 if __name__ ==  '__main__':
 
