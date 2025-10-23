@@ -4,11 +4,11 @@
 import prep
 import pandas as pd
 
-def tmeplated():
+def templated(filePath):
     #Get the data
     df = prep.prep()
 # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter("pandas_table.xlsx", engine='xlsxwriter')
+    writer = pd.ExcelWriter(filePath, engine='xlsxwriter')
 
 # Convert the dataframe to an XlsxWriter Excel object. Turn off the default
 # header and index and skip one row to allow us to insert a user defined
@@ -37,4 +37,9 @@ def tmeplated():
     writer.close()
 
 if __name__ ==  '__main__':
-    tmeplated()
+    try:
+        output_file = str(sys.argv[1])
+    except:
+        output_file = "pandas_table.xlsx"
+
+    templated(output_file)
