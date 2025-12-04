@@ -2,7 +2,6 @@
 #proccess_apps_team.py - chops up a vuln export based on host_id.custom_tags
 
 import pandas as pd
-import sys, pyperclip, os, subprocess, datetime
 
 import utility
 
