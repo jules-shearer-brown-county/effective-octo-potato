@@ -1,28 +1,22 @@
 #!/bin/python
 
-import os, subprocess, glob
+import os, glob
 import pandas as pd
 
+dir_name = "/mnt/c/users/jules.shearer/Downloads/"
+
 def add_apps(data):
-    apps=pd.read_excel("/mnt/c/Users/jules.shearer/Downloads/names_and_tags.xlsx")
+    apps=pd.read_excel(dir_name + "/names_and_tags.xlsx")
     data = data.merge(apps, how='left', on='host_id.hostname')
     return data
 
 def get_remediations():
-    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
     files = glob.glob(dir_name + 'vuln_remediation_export_*.xlsx')
     return max(files, key=os.path.getctime)
 
-
 def get_hosts_export():
-    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
     files = glob.glob(dir_name + 'hosts_export*.xlsx')
     return max(files, key=os.path.getctime)
-
-def get_names_and_tags():
-    file_name = "/mnt/c/Users/Jules.Shearer/Downloads/" + 'names_and_tags.xlsx'
-    apps = pd.read_excel(file_name)
-    return apps[apps['Application'].notna()]
 
 def preprocess(data):
     data['first_seen'] = pd.to_datetime(data['first_seen'], unit='s')
@@ -52,7 +46,6 @@ def assign_status(data):
     return data
 
 def get_latest_scan_from_downloads():
-    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
     files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
     return max(files, key=os.path.getctime)
 
@@ -61,29 +54,7 @@ def read_data(fileLocation=get_latest_scan_from_downloads()):
     data = preprocess(data)
     return data
 
-def open_file_in_browser(html_path):
-    current_dir = os.getcwd()
-    absolute_wsl_path = os.path.join(current_dir, html_path)
-    windows_path = subprocess.check_output(["wslpath", "-w", absolute_wsl_path]).decode().strip()
-    subprocess.run(["/mnt/c/Program Files/Mozilla Firefox/firefox.exe", windows_path])
-
-def open_dashboard_in_firefox():
-    subprocess.run(["/mnt/c/Program Files/Mozilla Firefox/firefox.exe",'http://localhost:8050'])
-
-def open_in_browser(windows_path):
-    subprocess.run(["/mnt/c/Program Files/Mozilla Firefox/firefox.exe", windows_path])
-
-def view(fig):
-    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
-    os.makedirs(dir_name,exist_ok=True)
-    fig_name = 'plot.html'
-    html_path = os.path.join(dir_name, fig_name)
-    fig.write_html(html_path)
-    open_file_in_browser(html_path)
-
-
 def get_file_path_for_all_scans_from_downloads():
-    dir_name = "/mnt/c/Users/Jules.Shearer/Downloads/"
     files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
     return [read_data(i) for i in files]
 
@@ -92,6 +63,4 @@ def unique_scans_results():
     return scans.sort_values('last_seen').drop_duplicates(subset=['hvm_id'], keep='last')
 
 if __name__ ==  '__main__':
-
-    data = pd.concat([read_data(get_remediations()), read_data(get_latest_scan_from_downloads())])
-
+    print(pd.concat([read_data(get_remediations()), read_data(get_latest_scan_from_downloads())]))
