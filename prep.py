@@ -2,15 +2,17 @@
 #prep.py - Get the data ready for a report
 
 import pandas as pd
-import sys
-import proccess_apps_team
+import argparse, os
+import process_apps_team
 import utility
+
+dir_name = "/mnt/c/Users/jules.shearer/Downloads/"
 
 def prep(args):
     #Get the entire backlog of results and put it in one data frame
-    df = pd.concat([proccess_apps_team.proccess_apps_team(),
-                    proccess_apps_team.proccess_apps_team(utility.get_remediations()),
-                    proccess_apps_team.proccess_apps_team("/mnt/c/Users/jules.shearer/Downloads/brown_county_gov_vuln_rememdiation_365.xlsx")])
+    df = pd.concat([process_apps_team.process_apps_team(),
+                    process_apps_team.process_apps_team(utility.get_remediations()),
+                    process_apps_team.process_apps_team(dir_name + "brown_county_gov_vuln_rememdiation_365.xlsx")])
 
     #sort the large data frame by last_seen
     df.sort_values(by=['last_seen'])
@@ -36,16 +38,23 @@ def prep(args):
                           'vuln_id.link':'Link' })
 
     #Write the entire dataframe to the file path specified in  or return the dataframe
-    if(args):
-        df.to_excel(args)
+    if(args.output_file):
+        df.to_excel(args.output_file)
     else:
         return df
 
+parser = argparse.ArgumentParser(
+    prog="UncommonX report",
+    description="Cleans the data from uncommonX and puts it in a format understandable by the unX report for the steering commitee",
+    epilog="Good luck"
+)
+
+parser.add_argument("-o", "--output_file", default = "output_file.xlsx")
+
+parser.add_argument("-d", "--working_directory", default=os.getcwd())
+
 if __name__ ==  '__main__':
 
-    try:
-        output_file = str(sys.argv[1])
-    except:
-        output_file = "/mnt/c/Users/jules.shearer/Downloads/prep_output.xlsx"
+    args = parser.parse_args()
 
-    prep(output_file)
+    prep(args)

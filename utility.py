@@ -1,12 +1,13 @@
-#!/bin/python
+#!/bin/python3
+#utiltiyt.py - Quality of Life functions for making reporting easier
 
-import os, glob
+import os, glob, argparse
 import pandas as pd
 
 dir_name = "/mnt/c/users/jules.shearer/Downloads/"
 
 def add_apps(data):
-    apps=pd.read_excel(dir_name + "/names_and_tags.xlsx")
+    apps=pd.read_excel(dir_name + "names_and_tags.xlsx")
     data = data.merge(apps, how='left', on='host_id.hostname')
     return data
 
@@ -62,5 +63,19 @@ def unique_scans_results():
     scans = pd.concat(get_file_path_for_all_scans_from_downloads())
     return scans.sort_values('last_seen').drop_duplicates(subset=['hvm_id'], keep='last')
 
+
+parser = argparse.ArgumentParser(
+    prog="UncommonX report utilities",
+    description="Data cleaning as well as a few quality of life functions",
+    epilog="Good luck"
+)
+
+parser.add_argument("-p", "--print", default=True)
+
 if __name__ ==  '__main__':
-    print(pd.concat([read_data(get_remediations()), read_data(get_latest_scan_from_downloads())]))
+
+    args = parser.parse_args()
+    if(args.print):
+        print(pd.concat([read_data(get_remediations()),
+                         read_data(get_latest_scan_from_downloads())]))
+
