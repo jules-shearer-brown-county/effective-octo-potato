@@ -1,5 +1,5 @@
 #!/bin/python3
-#utiltiyt.py - Quality of Life functions for making reporting easier
+#utility.py - Quality of Life functions for making reporting easier
 
 import os, glob, argparse
 import pandas as pd
