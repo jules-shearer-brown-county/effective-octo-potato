@@ -3,10 +3,10 @@
 import os, glob
 import pandas as pd
 
-dir_name = "/mnt/c/users/jules.shearer/Downloads/"
+dir_name = "/mnt/c/users/jules.shearer/Downloads/ucX_exports/"
 
 def add_apps(data):
-    apps=pd.read_excel(dir_name + "/names_and_tags.xlsx")
+    apps=pd.read_excel("/mnt/c/users/jules.shearer/Downloads/" + "names_and_tags.xlsx")
     data = data.merge(apps, how='left', on='host_id.hostname')
     return data
 
@@ -55,7 +55,7 @@ def read_data(fileLocation=get_latest_scan_from_downloads()):
     return data
 
 def get_file_path_for_all_scans_from_downloads():
-    files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
+    files = glob.glob(dir_name + 'vuln_*.xlsx')
     return [read_data(i) for i in files]
 
 def unique_scans_results():
