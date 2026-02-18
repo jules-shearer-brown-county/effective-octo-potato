@@ -8,17 +8,13 @@ import utility
 
 def prep(args):
     #Get the entire backlog of results and put it in one data frame
-    df = pd.concat([proccess_apps_team.proccess_apps_team(),
-                    proccess_apps_team.proccess_apps_team(utility.get_remediations()),
-                    proccess_apps_team.proccess_apps_team("/mnt/c/Users/jules.shearer/Downloads/brown_county_gov_vuln_rememdiation_365.xlsx")])
+    df = pd.concat(utility.get_all_scans_from_downloads())
 
     #sort the large data frame by last_seen
-    df.sort_values(by=['last_seen'])
+    df = df.sort_values(by=['last_seen'])
 
     #get rid of duplicates, keeping the most recent
-    df.drop_duplicates(subset='hvm_id',
-                       keep='first',
-                       inplace=True)
+    df.drop_duplicates(subset='hvm_id', keep='last', inplace=True)
 
     #Keep the values where there is not a null value in the column 'Applications'
     df=df[df['Application'].notna()]

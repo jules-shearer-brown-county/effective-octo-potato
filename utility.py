@@ -12,10 +12,12 @@ def add_apps(data):
 
 def get_remediations():
     files = glob.glob(dir_name + 'vuln_remediation_export_*.xlsx')
+    print ("found %d file paths in dir_name" % len(files))
     return max(files, key=os.path.getctime)
 
 def get_hosts_export():
     files = glob.glob(dir_name + 'hosts_export*.xlsx')
+    print ("found %d file paths in dir_name" % len(files))
     return max(files, key=os.path.getctime)
 
 def preprocess(data):
@@ -47,6 +49,7 @@ def assign_status(data):
 
 def get_latest_scan_from_downloads():
     files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
+    print ("found %d vuln_mapping file paths in dir_name" % len(files))
     return max(files, key=os.path.getctime)
 
 def read_data(fileLocation=get_latest_scan_from_downloads()):
@@ -54,13 +57,14 @@ def read_data(fileLocation=get_latest_scan_from_downloads()):
     data = preprocess(data)
     return data
 
-def get_file_path_for_all_scans_from_downloads():
+def get_all_scans_from_downloads():
     files = glob.glob(dir_name + 'vuln_*.xlsx')
+    print ("found %d vuln_* file paths in dir_name" % len(files))
     return [read_data(i) for i in files]
 
 def unique_scans_results():
-    scans = pd.concat(get_file_path_for_all_scans_from_downloads())
+    scans = pd.concat(get_all_scans_from_downloads())
     return scans.sort_values('last_seen').drop_duplicates(subset=['hvm_id'], keep='last')
 
 if __name__ ==  '__main__':
-    print(pd.concat([read_data(get_remediations()), read_data(get_latest_scan_from_downloads())]))
+    print(unique_scans_results())
