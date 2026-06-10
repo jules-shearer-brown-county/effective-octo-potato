@@ -4,7 +4,6 @@
 import pandas as pd
 import sys
 import argparse
-import proccess_apps_team
 import utility
 
 def prep():

@@ -3,19 +3,17 @@
 import os, glob
 import pandas as pd
 
-dir_name = "/mnt/c/users/jules.shearer/Downloads/ucX_exports/"
-
 def add_apps(data):
-    apps=pd.read_excel("/mnt/c/users/jules.shearer/Downloads/" + "names_and_tags.xlsx")
+    apps=pd.read_excel("names_and_tags.xlsx")
     data = data.merge(apps, how='left', on='host_id.hostname')
     return data
 
 def get_remediations():
-    files = glob.glob(dir_name + 'vuln_remediation_export_*.xlsx')
+    files = glob.glob('vuln_remediation_export_*.xlsx')
     return max(files, key=os.path.getctime)
 
 def get_hosts_export():
-    files = glob.glob(dir_name + 'hosts_export*.xlsx')
+    files = glob.glob('hosts_export*.xlsx')
     return max(files, key=os.path.getctime)
 
 def preprocess(data):
@@ -46,7 +44,7 @@ def assign_status(data):
     return data
 
 def get_latest_scan_from_downloads():
-    files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
+    files = glob.glob('vuln_mapping_export*.xlsx')
     return max(files, key=os.path.getctime)
 
 def get_latest_scan_from_CWD():
@@ -71,15 +69,14 @@ def get_names_and_tags():
 
 def read_data(fileLocation=get_latest_scan_from_downloads()):
     data = pd.read_excel(fileLocation)
-    data = preprocess(data)
-    return data
+    return preprocess(data)
 
 def get_all_scans_from_downloads():
-    files = glob.glob(dir_name + 'vuln_*.xlsx')
+    files = glob.glob('vuln_*.xlsx')
     return [read_data(i) for i in files]
 
 def get_vulnerabilites_from_current_dir():
-    files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
+    files = glob.glob('vuln_mapping_export*.xlsx')
     return [read_data(i) for i in files]
 
 def unique_scans_results():
