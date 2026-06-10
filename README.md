@@ -2,8 +2,8 @@ effective-octo-potato
 =========
 From UncommonX download the remediations and vulnerability reports
 
-[Vulnerability Mapping](https://app.uncommonx.com/cea615b1-d389-48cb-b4a5-a10bbdcf235f)
-[Remediations](https://app.uncommonx.com/2ba71668-c8db-4367-8075-72242e0e8e27)
+[Vulnerability Mapping](https://app.uncommonx.com/network-disc/vuln-host)
+[Remediations](https://app.uncommonx.com/network-disc/vuln-remediation)
 
 From Sharepoint download the deduplicated set 
 
