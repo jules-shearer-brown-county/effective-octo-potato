@@ -3,21 +3,22 @@
 
 import pandas as pd
 import sys
+import argparse
 import proccess_apps_team
 import utility
 
-def prep(args):
-    #Get the entire backlog of results and put it in one data frame
-    df = pd.concat(utility.get_all_scans_from_downloads())
+def prep():
+    parser = argparse.ArgumentParser()
 
-    #sort the large data frame by last_seen
-    df = df.sort_values(by=['last_seen'])
+    parser.add_argument( "vulnerabilities", help="path to the vuln_mapping_export.xlsx file")
+    parser.add_argument( "remediations", help="path to the remediation_mapping_export.xlsx file")
+    parser.add_argument( "deduplicated", help="path to the deduplicated.xlsx file")
 
-    #get rid of duplicates, keeping the most recent
-    df.drop_duplicates(subset='hvm_id', keep='last', inplace=True)
+    parser.add_argument( "-o", "--output", help="path to the output folder location")
 
-    #Keep the values where there is not a null value in the column 'Applications'
-    df=df[df['Application'].notna()]
+    args = parser.parse_args()
+
+    df = pd.concat([utility.read_data(args.vulnerabilities), utility.read_data(args.remediations)])
 
     #Add a column "Pending" of type string
     df['Pending'] = ''
@@ -31,17 +32,23 @@ def prep(args):
                           'host_id.link':'url',
                           'vuln_id.link':'Link' })
 
+    df = pd.concat([df, pd.read_excel(args.deduplicated)])
+
+    #sort the large data frame by last_seen
+    df = df.sort_values(by=['Last Seen'])
+
+    #get rid of duplicates, keeping the most recent
+    df.drop_duplicates(subset='hvm_id', keep='last', inplace=True)
+
+    #Keep the values where there is not a null value in the column 'Applications'
+    df=df[df['Application'].notna()]
+
     #Write the entire dataframe to the file path specified in  or return the dataframe
-    if(args):
-        df.to_excel(args)
+    if(args.output):
+        df.to_excel(args.output)
     else:
         return df
 
 if __name__ ==  '__main__':
 
-    try:
-        output_file = str(sys.argv[1])
-    except:
-        output_file = "/mnt/c/Users/jules.shearer/Downloads/prep_output.xlsx"
-
-    prep(output_file)
+    prep()
