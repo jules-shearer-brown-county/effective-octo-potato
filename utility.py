@@ -49,6 +49,26 @@ def get_latest_scan_from_downloads():
     files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
     return max(files, key=os.path.getctime)
 
+def get_latest_scan_from_CWD():
+    files = glob.glob('vuln_mapping_export*.xlsx')
+    return max(files, key=os.path.getctime)
+
+def get_latest_vuln_mapping():
+    files = glob.glob('vuln_mapping_export_*.xlsx')
+    return max(files, key=os.path.getctime)
+
+def get_latest_remediation():
+    files = glob.glob('vuln_remediation_export_*.xlsx')
+    return max(files, key=os.path.getctime)
+
+def get_latest_deduplicated():
+    files = glob.glob('deduplicated.xlsx')
+    return max(files, key=os.path.getctime)
+
+def get_names_and_tags():
+    files = glob.glob('names_and_tags.xlsx')
+    return max(files, key=os.path.getctime)
+
 def read_data(fileLocation=get_latest_scan_from_downloads()):
     data = pd.read_excel(fileLocation)
     data = preprocess(data)
@@ -56,6 +76,10 @@ def read_data(fileLocation=get_latest_scan_from_downloads()):
 
 def get_all_scans_from_downloads():
     files = glob.glob(dir_name + 'vuln_*.xlsx')
+    return [read_data(i) for i in files]
+
+def get_vulnerabilites_from_current_dir():
+    files = glob.glob(dir_name + 'vuln_mapping_export*.xlsx')
     return [read_data(i) for i in files]
 
 def unique_scans_results():
