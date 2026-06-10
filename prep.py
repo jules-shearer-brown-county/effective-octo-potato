@@ -34,14 +34,15 @@ def prep():
 
     df = pd.concat([df, pd.read_excel(args.deduplicated)])
 
+    #Keep the values where there is not a null value in the column 'Applications'
+    df=df[df['Application'].notna()]
+
     #sort the large data frame by last_seen
     df = df.sort_values(by=['Last Seen'])
 
     #get rid of duplicates, keeping the most recent
     df.drop_duplicates(subset='hvm_id', keep='last', inplace=True)
 
-    #Keep the values where there is not a null value in the column 'Applications'
-    df=df[df['Application'].notna()]
 
     #Write the entire dataframe to the file path specified in  or return the dataframe
     if(args.output):
