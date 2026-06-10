@@ -15,7 +15,7 @@ To install required packages run
 
 Then you can run prep.py
 
-    './prep.py'
+    './prep.py "Downloads/vuln_mapping_export_.xlsx" "Downloads/vuln_remediation_export.xlsx" "Downloads/deduplicated2.xlsx"'
 
 prep.py will prompt you for for the remedation, vulnerability, and deuplicated file paths. It will attempt to remove duplicated entries based on the HVM_ID and update deduplicated with the most up to date vulnerability information
 
