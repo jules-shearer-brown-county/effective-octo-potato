@@ -47,7 +47,7 @@ def prep():
     if(args.output):
         df.to_excel(args.output)
     else:
-        return df
+        df.to_excel(args.deduplicated)
 
 if __name__ ==  '__main__':
 
