@@ -81,6 +81,8 @@ def prep():
     #Read the data
     df = pd.concat([read_data(args.vulnerabilities), read_data(args.remediations)])
 
+    df = pd.concat([df, pd.read_excel(args.deduplicated)])
+
     #Add a column "Pending" of type string
     df['Pending'] = ''
 
@@ -92,8 +94,6 @@ def prep():
                           'host_id.hostname':'Host',
                           'host_id.link':'url',
                           'vuln_id.link':'Link' })
-
-    df = pd.concat([df, pd.read_excel(args.deduplicated)])
 
     #Keep the values where there is not a null value in the column 'Applications'
     df=df[df['Application'].notna()]
