@@ -1,10 +1,70 @@
 #!/bin/python3
 #prep.py - Get the data ready for a report
 
+import os, glob
 import pandas as pd
 import sys
 import argparse
-import utility
+
+def get_latest(filename):
+    files = glob.glob(filename)
+    return max(files, key=os.path.getctime)
+
+def get_names_and_tags():
+    files = glob.glob('names_and_tags.xlsx')
+    return max(files, key=os.path.getctime)
+
+def get_latest_deduplicated():
+    files = glob.glob('deduplicated.xlsx')
+    return max(files, key=os.path.getctime)
+
+def get_latest_remediation():
+    files = glob.glob('vuln_remediation_export_*.xlsx')
+    return max(files, key=os.path.getctime)
+
+def get_latest_vuln_mapping():
+    files = glob.glob('vuln_mapping_export_*.xlsx')
+    return max(files, key=os.path.getctime)
+
+def add_apps(data):
+    apps=pd.read_excel("names_and_tags.xlsx")
+    data = data.merge(apps, how='left', on='host_id.hostname')
+    return data
+
+def preprocess(data):
+    data['first_seen'] = pd.to_datetime(data['first_seen'], unit='s')
+    data['last_seen'] = pd.to_datetime(data['last_seen'], unit='s')
+    data['vuln_id.severity']= data['vuln_id.severity'].replace({
+        3:'Medium',
+        4:'High',
+        5:'Critical'})
+    data['vuln_id.link'] = 'https://app.uncommonx.com/network-disc/vuln/' + data['vuln_id.vuln_id'].astype(str)
+    data['host_id.link'] = 'https://app.uncommonx.com/network-disc/host/' + data['host_id.host_id'].astype(str)
+    if( 'ack_dt' in data.columns ):
+        data['ack_dt'] = pd.to_datetime(data['ack_dt'], unit='s')
+    if( 'ttr' in data.columns ):
+        data['closed_dt'] = data['first_seen'] + pd.to_timedelta(data['ttr'], unit='d')
+    else:
+        data['closed_dt'] = pd.to_datetime(data['closed_dt'], unit='s')
+    data = add_apps(data)
+    data = assign_status(data)
+    return data.drop(columns=[col for col in data if data[data[col].notna()].empty])
+
+def assign_status(data):
+    remediation_category = pd.CategoricalDtype(categories=['Open', 'Remediated', 'Acknowledged', 'Closed'])
+    data["Category"] = pd.Series('Open', index=data.index, dtype='category')
+    data["Category"] = data["Category"].astype(remediation_category)
+    data.loc[data.ack_dt.notna(), 'Category']='Acknowledged'
+    data.loc[data.closed_dt.notna() & data.ack_dt.isna(), 'Category']='Remediated'
+    return data
+
+def get_latest_scan_from_downloads():
+    files = glob.glob('vuln_mapping_export*.xlsx')
+    return max(files, key=os.path.getctime)
+
+def read_data(fileLocation=get_latest_scan_from_downloads()):
+    data = pd.read_excel(fileLocation)
+    return preprocess(data)
 
 def prep():
     parser = argparse.ArgumentParser(
@@ -13,22 +73,22 @@ def prep():
 
     parser.add_argument("-v",
                         "--vulnerabilities",
-                        default=utility.get_latest_vuln_mapping(),
+                        default=get_latest('vuln_mapping_export_*.xlsx'),
                         help="path to the vuln_mapping_export.xlsx file")
 
     parser.add_argument("-r",
                         "--remediations",
-                        default=utility.get_latest_remediation(),
+                        default=get_latest('vuln_mapping_export_*.xlsx'),
                         help="path to the remediation_mapping_export.xlsx file")
 
     parser.add_argument("-d",
                         "--deduplicated",
-                        default=utility.get_latest_deduplicated(),
+                        default=get_latest('deduplicated.xlsx'),
                         help="path to the deduplicated.xlsx file")
 
     parser.add_argument("-n",
                         "--names_and_tags",
-                        default=utility.get_names_and_tags(),
+                        default=get_latest('names_and_tags.xlsx'),
                         help="path to the names and tags.xlsx file")
 
     parser.add_argument( "-o",
@@ -37,8 +97,8 @@ def prep():
                         help="path to the output folder location")
 
     args = parser.parse_args()
-
-    df = pd.concat([utility.read_data(args.vulnerabilities), utility.read_data(args.remediations)])
+    #Read the data
+    df = pd.concat([read_data(args.vulnerabilities), read_data(args.remediations)])
 
     #Add a column "Pending" of type string
     df['Pending'] = ''
