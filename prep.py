@@ -77,6 +77,7 @@ def prep():
                         help="path to the output folder location")
 
     args = parser.parse_args()
+
     #Read the data
     df = pd.concat([read_data(args.vulnerabilities), read_data(args.remediations)])
 
@@ -104,10 +105,7 @@ def prep():
     df.drop_duplicates(subset='hvm_id', keep='last', inplace=True)
 
     #Write the entire dataframe to the file path specified in  or return the dataframe
-    if(args.output):
-        df.to_excel(args.output)
-    else:
-        df.to_excel(args.deduplicated)
+    df.to_excel(args.output)
 
 if __name__ ==  '__main__':
 
