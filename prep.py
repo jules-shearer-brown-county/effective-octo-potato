@@ -10,22 +10,6 @@ def get_latest(filename):
     files = glob.glob(filename)
     return max(files, key=os.path.getctime)
 
-def get_names_and_tags():
-    files = glob.glob('names_and_tags.xlsx')
-    return max(files, key=os.path.getctime)
-
-def get_latest_deduplicated():
-    files = glob.glob('deduplicated.xlsx')
-    return max(files, key=os.path.getctime)
-
-def get_latest_remediation():
-    files = glob.glob('vuln_remediation_export_*.xlsx')
-    return max(files, key=os.path.getctime)
-
-def get_latest_vuln_mapping():
-    files = glob.glob('vuln_mapping_export_*.xlsx')
-    return max(files, key=os.path.getctime)
-
 def add_apps(data):
     apps=pd.read_excel("names_and_tags.xlsx")
     data = data.merge(apps, how='left', on='host_id.hostname')
@@ -58,11 +42,7 @@ def assign_status(data):
     data.loc[data.closed_dt.notna() & data.ack_dt.isna(), 'Category']='Remediated'
     return data
 
-def get_latest_scan_from_downloads():
-    files = glob.glob('vuln_mapping_export*.xlsx')
-    return max(files, key=os.path.getctime)
-
-def read_data(fileLocation=get_latest_scan_from_downloads()):
+def read_data(fileLocation):
     data = pd.read_excel(fileLocation)
     return preprocess(data)
 
