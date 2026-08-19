@@ -1,6 +1,7 @@
 #!/bin/python3
 #prep.py - Get the data ready for a report
 
+import datetime as dt
 import os, glob
 import pandas as pd
 import sys
@@ -38,8 +39,9 @@ def assign_status(data):
     remediation_category = pd.CategoricalDtype(categories=['Open', 'Remediated', 'Acknowledged', 'Closed'])
     data["Category"] = pd.Series('Open', index=data.index, dtype='category')
     data["Category"] = data["Category"].astype(remediation_category)
-    data.loc[data.ack_dt.notna(), 'Category']='Acknowledged'
-    data.loc[data.closed_dt.notna() & data.ack_dt.isna(), 'Category']='Remediated'
+    data.loc[(data['last_seen'] < (dt.datetime.now()-dt.timedelta(days=90))), 'Category']='Closed'
+    data.loc[data['ack_dt'].notna(), 'Category']='Acknowledged'
+    data.loc[data['closed_dt'].notna(), 'Category']='Remediated'
     return data
 
 def read_data(fileLocation):
@@ -63,7 +65,7 @@ def prep():
 
     parser.add_argument("-d",
                         "--deduplicated",
-                        default=get_latest('deduplicated.xlsx'),
+                        default='deduplicated.xlsx',
                         help="path to the deduplicated.xlsx file")
 
     parser.add_argument("-n",
@@ -82,6 +84,8 @@ def prep():
     df = pd.concat([read_data(args.vulnerabilities), read_data(args.remediations)])
 
     df = pd.concat([df, pd.read_excel(args.deduplicated)])
+
+    df = df[['hvm_id', 'last_seen', 'vuln_id.name', 'vuln_id.severity', 'host_id.hostname','host_id.link', 'vuln_id.link', 'Category', 'closed_dt', 'ack_dt', 'Application', 'first_seen', 'details.results']]
 
     #Add a column "Pending" of type string
     df['Pending'] = ''
