@@ -90,6 +90,16 @@ def prep():
     #Add a column "Pending" of type string
     df['Pending'] = ''
 
+
+    #Keep the values where there is not a null value in the column 'Applications'
+    df=df[df['Application'].notna()]
+
+    #sort the large data frame by last_seen
+    df = df.sort_values(by=['last_seenn'])
+
+    #get rid of duplicates, keeping the most recent
+    df.drop_duplicates(subset='hvm_id', keep='last', inplace=True)
+
     #Rename a couple of columns
     df=df.rename(columns={'first_seen':'First Seen',
                           'last_seen':'Last Seen',
@@ -98,15 +108,6 @@ def prep():
                           'host_id.hostname':'Host',
                           'host_id.link':'url',
                           'vuln_id.link':'Link' })
-
-    #Keep the values where there is not a null value in the column 'Applications'
-    df=df[df['Application'].notna()]
-
-    #sort the large data frame by last_seen
-    df = df.sort_values(by=['Last Seen'])
-
-    #get rid of duplicates, keeping the most recent
-    df.drop_duplicates(subset='hvm_id', keep='last', inplace=True)
 
     #Write the entire dataframe to the file path specified in  or return the dataframe
     df.to_excel(args.output)
