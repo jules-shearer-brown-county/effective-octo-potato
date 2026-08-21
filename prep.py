@@ -95,7 +95,7 @@ def prep():
     df=df[df['Application'].notna()]
 
     #sort the large data frame by last_seen
-    df = df.sort_values(by=['last_seenn'])
+    df = df.sort_values(by=['last_seen'])
 
     #get rid of duplicates, keeping the most recent
     df.drop_duplicates(subset='hvm_id', keep='last', inplace=True)
